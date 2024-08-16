@@ -32,6 +32,25 @@ GLuint gIndexBufferObject = 0;
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
 
+// ^^^^^^^^^^^^^^^^ Error Handling Routines ^^^^^^^^^^^^^^^^^^^
+
+static void GLCLearAllErrors() {
+    while (glGetError() != GL_NO_ERROR) {
+    }
+}
+
+// Returns True if we had error
+static bool GLChekErrorStatus(const char* function, int line) {
+    while (GLenum error = glGetError()) {
+        std::cout << "OpenGL Error: " << error << 
+                  "\tLine: " << line << 
+                  "\tfunction: " << function << std::endl;
+        return true;
+    }
+    return false;
+}
+#define GLCheck(x) GLCLearAllErrors(); x; GLCheckErrorStatus(#x, __LINE__);
+
 void GetOpenGLVersionInfo() {
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
@@ -99,9 +118,6 @@ void CreateGraphicsPipeline() {
 
     std::string vertexShaderSource = LoadShaderAsString("./shaders/vert.glsl");
     std::string fragmentShaderSource = LoadShaderAsString("./shaders/frag.glsl");
-
-    std::cout << vertexShaderSource << std::endl; //prints just fine
-    std::cout << fragmentShaderSource<< std::endl; // prints just fine
 
     gGraphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
