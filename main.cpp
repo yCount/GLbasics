@@ -23,6 +23,7 @@ bool gQuit = false; // If true, we quit
 GLuint gVertexArrayObject = 0;
 // Our VBO in this project, made temporarily global
 GLuint gVertexBufferObject = 0;
+GLuint gVertexBufferObject2 = 0;
 
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
@@ -110,18 +111,37 @@ void VertexSpecification() {
         0.0f, 0.8f, 0.0f  // vertex 3
     };
 
+    const std::vector<GLfloat> vertexColors{
+        //r    g     b
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+
     // We start setting things up on the GPU
     glGenVertexArrays(1, &gVertexArrayObject);
     glBindVertexArray(gVertexArrayObject);
 
-    // Start generating our VBO
+    // Start generating our VBO 
+    // Setting up Positions
     glGenBuffers(1, &gVertexBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
     glBufferData(GL_ARRAY_BUFFER, vertexPosition.size() * sizeof(GLfloat), 
                 vertexPosition.data(), GL_STATIC_DRAW);
-    
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    // Setting up Colors
+    glGenBuffers(1, &gVertexBufferObject2);
+    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject2);
+    glBufferData(GL_ARRAY_BUFFER, vertexColors.size() * sizeof(GL_FLOAT),
+                vertexColors.data(), GL_STATIC_DRAW);
+
+    // Linking attribs in our VBO
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, // r,g,b (that's why 3) 
+                          GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // Unbind our current bound
     glBindVertexArray(0);
