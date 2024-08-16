@@ -24,6 +24,11 @@ GLuint gVertexArrayObject = 0;
 // Our VBO in this project, made temporarily global
 GLuint gVertexBufferObject = 0;
 
+// Index Buffer Object (IBO)
+// This is used to store the array of indices that we want
+// to draw from, when we do indexed drawing
+GLuint gIndexBufferObject = 0;
+
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
 
@@ -106,19 +111,14 @@ void VertexSpecification() {
     const std::vector<GLfloat> vertexData{
         //x     y     z
         //r     g     b
-        -0.5f, -0.5f, 0.0f, // vertex 1
-        1.0f, 0.0f, 0.0f,   // color
+        -0.5f, -0.5f, 0.0f,// vertex 1
+        1.0f, 0.0f, 0.0f,  // color
         0.5f, -0.5f, 0.0f, // vertex 2
-        0.0f, 1.0f, 0.0f,   // color
-        -0.5f, 0.5f, 0.0f,  // vertex 3
-        0.0f, 0.0f, 1.0f,    //color
-        // Second Triangle
-        0.5f, -0.5f, 0.0f, // vertex 1 green
-        0.0f, 1.0f, 0.0f,   // color
-        0.5f, 0.5f, 0.0f,  // vertex 2
-        1.0f, 0.0f, 0.0f,    //color
+        0.0f, 1.0f, 0.0f,  // color
         -0.5f, 0.5f, 0.0f, // vertex 3
-        0.0f, 0.0f, 1.0f,  // color
+        0.0f, 0.0f, 1.0f,  //color
+        0.5f, 0.5f, 0.0f,  // vertex 4
+        1.0f, 0.0f, 0.0f   //color
     };
 
     // We start setting things up on the GPU
@@ -132,6 +132,19 @@ void VertexSpecification() {
                 vertexData.size() * sizeof(GLfloat),// Size of data in bytes
                 vertexData.data(),                  // Raw array of data
                 GL_STATIC_DRAW);                    // How we intend to use the data
+
+
+    const std::vector<GLuint> indexBufferObject {2, 0, 1, 3, 2, 1};
+    // Setting up Index Buffer Object (IBO)
+    glGenBuffers(1, &gIndexBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+                 gIndexBufferObject);
+    // Populate our Index Buffer
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 indexBufferObject.size()*sizeof(GLuint),
+                 indexBufferObject.data(),
+                 GL_STATIC_DRAW);
+
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,        // Attribute 0 corresponds to the enabledVertexAttribArray
@@ -224,7 +237,8 @@ void Draw() {
     glBindVertexArray(gVertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glUseProgram(0);
 }
