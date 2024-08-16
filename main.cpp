@@ -23,7 +23,6 @@ bool gQuit = false; // If true, we quit
 GLuint gVertexArrayObject = 0;
 // Our VBO in this project, made temporarily global
 GLuint gVertexBufferObject = 0;
-GLuint gVertexBufferObject2 = 0;
 
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
@@ -104,18 +103,14 @@ void CreateGraphicsPipeline() {
 
 void VertexSpecification() {
     // Geometry Data
-    const std::vector<GLfloat> vertexPosition{
+    const std::vector<GLfloat> vertexData{
         //x     y     z
         -0.8f, -0.8f, 0.0f, // vertex 1
+        1.0f, 0.0f, 0.0f,   // color
         0.8f, -0.8f, 0.0f, // vertex 2
-        0.0f, 0.8f, 0.0f  // vertex 3
-    };
-
-    const std::vector<GLfloat> vertexColors{
-        //r    g     b
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
+        0.0f, 1.0f, 0.0f,   // color
+        0.0f, 0.8f, 0.0f,  // vertex 3
+        0.0f, 0.0f, 1.0f    //color
     };
 
     // We start setting things up on the GPU
@@ -123,25 +118,30 @@ void VertexSpecification() {
     glBindVertexArray(gVertexArrayObject);
 
     // Start generating our VBO 
-    // Setting up Positions
     glGenBuffers(1, &gVertexBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, vertexPosition.size() * sizeof(GLfloat), 
-                vertexPosition.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,                   // Kind of buffer we are working with
+                vertexData.size() * sizeof(GLfloat),// Size of data in bytes
+                vertexData.data(),                  // Raw array of data
+                GL_STATIC_DRAW);                    // How we intend to use the data
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    // Setting up Colors
-    glGenBuffers(1, &gVertexBufferObject2);
-    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject2);
-    glBufferData(GL_ARRAY_BUFFER, vertexColors.size() * sizeof(GL_FLOAT),
-                vertexColors.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0,        // Attribute 0 corresponds to the enabledVertexAttribArray
+                          3,        // The number of components
+                          GL_FLOAT, // Type
+                          GL_FALSE, // is the data normalized
+                          sizeof(GL_FLOAT)*6,        // stride (gap between data)
+                          (void*)0);// offset
 
     // Linking attribs in our VBO
+    // Color information
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, // r,g,b (that's why 3) 
-                          GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(1, 
+                          3, // r,g,b (that's why 3) 
+                          GL_FLOAT, 
+                          GL_FALSE, 
+                          sizeof(GL_FLOAT)*6, 
+                          (GLvoid*)(sizeof(GL_FLOAT)*3));
 
     // Unbind our current bound
     glBindVertexArray(0);
