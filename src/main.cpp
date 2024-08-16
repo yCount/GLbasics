@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // C++ Standard Template Library (STL)
 #include <iostream>
@@ -263,12 +264,19 @@ void PreDraw() {
 
     glUseProgram(gGraphicsPipelineShaderProgram);
 
-    GLint location = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_Offset");
-    std::cout << "location of u_Offset: " << location << std::endl;
-    if (location >= 0) {
-        glUniform1f(location, g_uOffset); // specify value for the uniform variable
+
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, g_uOffset, 0.0f));
+
+    GLint u_ModelMatrixLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_ModelMatrix");
+    std::cout << "location of u_ModelMatrix: " << u_ModelMatrixLocation << std::endl;
+
+
+    if (u_ModelMatrixLocation >= 0) {
+        // glUniform1f(u_ModelMatrixLocation, g_uOffset); // specify value for the uniform variable
+        glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &translate[0][0]);
     } else {
         std::cout << "Could not find u_Offset, maybe a misspelling" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
