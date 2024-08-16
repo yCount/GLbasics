@@ -105,12 +105,20 @@ void VertexSpecification() {
     // Geometry Data
     const std::vector<GLfloat> vertexData{
         //x     y     z
-        -0.8f, -0.8f, 0.0f, // vertex 1
+        //r     g     b
+        -0.5f, -0.5f, 0.0f, // vertex 1
         1.0f, 0.0f, 0.0f,   // color
-        0.8f, -0.8f, 0.0f, // vertex 2
+        0.5f, -0.5f, 0.0f, // vertex 2
         0.0f, 1.0f, 0.0f,   // color
-        0.0f, 0.8f, 0.0f,  // vertex 3
-        0.0f, 0.0f, 1.0f    //color
+        -0.5f, 0.5f, 0.0f,  // vertex 3
+        0.0f, 0.0f, 1.0f,    //color
+        // Second Triangle
+        0.5f, -0.5f, 0.0f, // vertex 1 green
+        0.0f, 1.0f, 0.0f,   // color
+        0.5f, 0.5f, 0.0f,  // vertex 2
+        1.0f, 0.0f, 0.0f,    //color
+        -0.5f, 0.5f, 0.0f, // vertex 3
+        0.0f, 0.0f, 1.0f,  // color
     };
 
     // We start setting things up on the GPU
@@ -147,6 +155,7 @@ void VertexSpecification() {
     glBindVertexArray(0);
     // Disable any arttibutes becuase we don't want to leave them open
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
 void InitializeProgram() {
@@ -215,7 +224,7 @@ void Draw() {
     glBindVertexArray(gVertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glUseProgram(0);
 }
