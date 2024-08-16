@@ -30,6 +30,8 @@ GLuint gVertexBufferObject = 0;
 // to draw from, when we do indexed drawing
 GLuint gIndexBufferObject = 0;
 
+float g_uOffset = 0.0f;
+
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
 
@@ -206,7 +208,7 @@ void InitializeProgram() {
 
     gGraphicsApplicationWindow = SDL_CreateWindow("OpenGL Window",
                               0, 0, gScreenWidth,
-                              gScreenWidth, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                              gScreenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
     if (gGraphicsApplicationWindow==nullptr) {
         std::cout << "SDL_Window was not able to be created" << std::endl;
@@ -236,6 +238,18 @@ void Input() {
             gQuit = true;
         }
     }
+
+    // Retreve keyboard state
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    if (state[SDL_SCANCODE_UP]) {
+        g_uOffset+=0.01f;
+        std::cout << "g_uOffset: " << g_uOffset << std::endl;
+    }
+    if (state[SDL_SCANCODE_DOWN]) {
+        g_uOffset-=0.01f;
+        std::cout << "g_uOffset: " << g_uOffset << std::endl;
+    }
+    
 }
 
 void PreDraw() {
@@ -248,6 +262,14 @@ void PreDraw() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     glUseProgram(gGraphicsPipelineShaderProgram);
+
+    GLint location = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_Offset");
+    std::cout << "location of u_Offset: " << location << std::endl;
+    if (location >= 0) {
+        glUniform1f(location, g_uOffset); // specify value for the uniform variable
+    } else {
+        std::cout << "Could not find u_Offset, maybe a misspelling" << std::endl;
+    }
 }
 
 void Draw() {
