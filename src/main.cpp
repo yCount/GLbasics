@@ -12,6 +12,9 @@
 #include <string>
 #include <fstream>
 
+// Our libraries
+#include "Camera.hpp"
+
 // Globals
 int gScreenWidth = 640;
 int gScreenHeight = 480;
@@ -32,11 +35,13 @@ GLuint gVertexBufferObject = 0;
 GLuint gIndexBufferObject = 0;
 
 float g_uOffset = -2.0f;
-float g_uRotate = 0.0f;
+float g_uRotate = 0.1f;
 float g_uScale = 0.5f;
 
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
+
+Camera gCamera;
 
 // ^^^^^^^^^^^^^^^^ Error Handling Routines ^^^^^^^^^^^^^^^^^^^
 
@@ -243,27 +248,23 @@ void Input() {
     }
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-
+    g_uRotate -= 1.0f;
     if (state[SDL_SCANCODE_LCTRL] && state[SDL_SCANCODE_E]) {
         gQuit = true;
     }
 
     if (state[SDL_SCANCODE_UP]) {
-        g_uOffset+=0.01f;
-        std::cout << "g_uOffset: " << g_uOffset << std::endl;
+        gCamera.MoveForward(0.05f);
     }
     if (state[SDL_SCANCODE_DOWN]) {
-        g_uOffset-=0.01f;
-        std::cout << "g_uOffset: " << g_uOffset << std::endl;
+        gCamera.MoveBackward(0.05f);
     }
     
     if (state[SDL_SCANCODE_LEFT]) {
-        g_uRotate+=1.0f;
-        std::cout << "g_uRotate: " << g_uRotate << std::endl;
+        gCamera.MoveLeft(0.01f);
     }
     if (state[SDL_SCANCODE_RIGHT]) {
-        g_uRotate-=1.0f;
-        std::cout << "g_uRotate: " << g_uRotate << std::endl;
+        gCamera.MoveRight(0.01f);
     }
 }
 
@@ -292,6 +293,17 @@ void PreDraw() {
         glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &model[0][0]);
     } else {
         std::cout << "Could not find u_ModelMatrix, maybe a misspelling" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    glm::mat4 view = gCamera.GetViewMatrix();
+
+    GLint u_ViewLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_ViewMatrix");
+
+    if (u_ViewLocation >= 0) {
+        glUniformMatrix4fv(u_ViewLocation, 1, GL_FALSE, &view[0][0]);
+    } else {
+        std::cout << "Could not find u_ViewMatrix, maybe a misspelling" << std::endl;
         exit(EXIT_FAILURE);
     }
 
