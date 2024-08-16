@@ -240,8 +240,12 @@ void Input() {
         }
     }
 
-    // Retreve keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    if (state[SDL_SCANCODE_LCTRL] && state[SDL_SCANCODE_E]) {
+        gQuit = true;
+    }
+
     if (state[SDL_SCANCODE_UP]) {
         g_uOffset+=0.01f;
         std::cout << "g_uOffset: " << g_uOffset << std::endl;
@@ -249,8 +253,7 @@ void Input() {
     if (state[SDL_SCANCODE_DOWN]) {
         g_uOffset-=0.01f;
         std::cout << "g_uOffset: " << g_uOffset << std::endl;
-    }
-    
+    }    
 }
 
 void PreDraw() {
@@ -264,18 +267,32 @@ void PreDraw() {
 
     glUseProgram(gGraphicsPipelineShaderProgram);
 
-
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, g_uOffset, 0.0f));
+    // Model transform by translating our object into world space
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, g_uOffset));
 
     GLint u_ModelMatrixLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_ModelMatrix");
-    std::cout << "location of u_ModelMatrix: " << u_ModelMatrixLocation << std::endl;
-
 
     if (u_ModelMatrixLocation >= 0) {
         // glUniform1f(u_ModelMatrixLocation, g_uOffset); // specify value for the uniform variable
         glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &translate[0][0]);
     } else {
-        std::cout << "Could not find u_Offset, maybe a misspelling" << std::endl;
+        std::cout << "Could not find u_ModelMatrix, maybe a misspelling" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Projection matrix (in perspective)
+    glm::mat4 perspective = glm::perspective(glm::radians(45.0f),
+                                             (float)gScreenWidth/(float)gScreenHeight,
+                                             0.1f,
+                                             10.0f);
+
+    // Retrieve our location of our Model Matrix
+    GLint u_ProjectionLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_Perspective");
+
+    if (u_ProjectionLocation >= 0) {
+        glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
+    } else {
+        std::cout << "Could not find u_Perspectve, maybe a misspelling" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
