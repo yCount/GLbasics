@@ -1,9 +1,9 @@
-//  g++ main.cpp ./src/glad.c -I./include/ -o prog -lSDL2 -ldl
+//  g++ src/*.cpp src/glad.c -I./include/ -I./../common/thirdparty/ -o prog -lSDL2 -ldl
 
 // Third Party Libraries
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
-
+#include <glm/glm.hpp>
 
 // C++ Standard Template Library (STL)
 #include <iostream>
@@ -23,6 +23,7 @@ bool gQuit = false; // If true, we quit
 GLuint gVertexArrayObject = 0;
 // Our VBO in this project, made temporarily global
 GLuint gVertexBufferObject = 0;
+
 
 // Index Buffer Object (IBO)
 // This is used to store the array of indices that we want
