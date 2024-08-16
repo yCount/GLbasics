@@ -1,8 +1,15 @@
 //  g++ main.cpp ./src/glad.c -I./include/ -o prog -lSDL2 -ldl
-#include <iostream>
+
+// Third Party Libraries
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
+
+
+// C++ Standard Template Library (STL)
+#include <iostream>
 #include <vector>
+#include <string>
+#include <fstream>
 
 // Globals
 int gScreenWidth = 640;
@@ -20,29 +27,27 @@ GLuint gVertexBufferObject = 0;
 // Program Object (for our shaders)
 GLuint gGraphicsPipelineShaderProgram = 0;
 
-// Vertex shader executes once per vertex, and will be in charge of
-// the final position of the vertex.
-const std::string gVertexShaderSource =
-    "#version 410 core\n"
-    "in vec4 position;\n"
-    "void main() {\n"
-    "   gl_Position = vec4(position.x, position.y, position.z, position.w);\n"
-    "}\n";
-
-// Fragment shader executes once per fragment (i.e. roughly for every pixel that will be rasterized),
-// and in part determines the final color that will be sent to the screen.
-const std::string gFragmentShaderSource =
-    "#version 410 core\n"
-    "out vec4 color;\n"
-    "void main() {\n"
-    "   color = vec4(1.0f, 0.5f, 0.0f, 1.0f);\n"
-    "}\n";
-
 void GetOpenGLVersionInfo() {
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "Version: " << glGetString(GL_VERSION) << std::endl;
     std::cout << "Shading Language Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+}
+
+std::string LoadShaderAsString(const std::string& filename) {
+    // Resulting shader program loaded as a single string
+    std::string result = "";
+    
+    std::string line = "";
+    std::ifstream myFile(filename.c_str());
+
+    if (myFile.is_open()) {
+        while (std::getline(myFile, line)) {
+            result += line + "\n";
+        }
+        myFile.close();
+    }
+    return result;
 }
 
 GLuint CompileShader(GLuint type, const std::string& source) {
@@ -86,7 +91,14 @@ GLuint CreateShaderProgram(const std::string& vertexshadersource, const std::str
 }
 
 void CreateGraphicsPipeline() {
-    gGraphicsPipelineShaderProgram = CreateShaderProgram(gVertexShaderSource, gFragmentShaderSource);
+
+    std::string vertexShaderSource = LoadShaderAsString("./shaders/vert.glsl");
+    std::string fragmentShaderSource = LoadShaderAsString("./shaders/frag.glsl");
+
+    std::cout << vertexShaderSource << std::endl; //prints just fine
+    std::cout << fragmentShaderSource<< std::endl; // prints just fine
+
+    gGraphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
 void VertexSpecification() {
