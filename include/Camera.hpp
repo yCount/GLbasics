@@ -12,6 +12,7 @@ class Camera {
 
         glm::mat4 GetViewMatrix() const;
 
+        void MouseLook(int mouseX, int mouseY);
         void MoveForward(float);
         void MoveBackward(float);
         void MoveLeft(float);
