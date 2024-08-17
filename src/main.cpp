@@ -1,4 +1,4 @@
-//  g++ src/*.cpp src/glad.c -I./include/ -I./../common/thirdparty/ -o prog -lSDL2 -ldl
+//  g++ src/*.cpp src/glad.c -I./include/ -I./common/thirdparty/ -o prog -lSDL2 -ldl
 
 // Third Party Libraries
 #include <SDL2/SDL.h>
