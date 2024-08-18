@@ -177,8 +177,8 @@ void VertexSpecification() {
     glVertexAttribPointer(0,        // Attribute 0 corresponds to the enabledVertexAttribArray
                           3,        // The number of components
                           GL_FLOAT, // Type
-                          GL_FALSE, // is the data normalized
-                          sizeof(GL_FLOAT)*6,        // stride (gap between data)
+                          false, // is the data normalized
+                          sizeof(GLfloat)*6,        // stride (gap between data)
                           (void*)0);// offset
 
     // Linking attribs in our VBO
@@ -187,9 +187,9 @@ void VertexSpecification() {
     glVertexAttribPointer(1, 
                           3, // r,g,b (that's why 3) 
                           GL_FLOAT, 
-                          GL_FALSE, 
-                          sizeof(GL_FLOAT)*6, 
-                          (GLvoid*)(sizeof(GL_FLOAT)*3));
+                          false, 
+                          sizeof(GLfloat)*6, 
+                          (GLvoid*)(sizeof(GLfloat)*3));
 
     // Unbind our current bound
     glBindVertexArray(0);
@@ -296,7 +296,7 @@ void PreDraw() {
 
     if (u_ModelMatrixLocation >= 0) {
         // glUniform1f(u_ModelMatrixLocation, g_uOffset); // specify value for the uniform variable
-        glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &model[0][0]);
+        glUniformMatrix4fv(u_ModelMatrixLocation, 1, false, &model[0][0]);
     } else {
         std::cout << "Could not find u_ModelMatrix, maybe a misspelling" << std::endl;
         exit(EXIT_FAILURE);
@@ -307,7 +307,7 @@ void PreDraw() {
     GLint u_ViewLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_ViewMatrix");
 
     if (u_ViewLocation >= 0) {
-        glUniformMatrix4fv(u_ViewLocation, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(u_ViewLocation, 1, false, &view[0][0]);
     } else {
         std::cout << "Could not find u_ViewMatrix, maybe a misspelling" << std::endl;
         exit(EXIT_FAILURE);
@@ -323,7 +323,7 @@ void PreDraw() {
     GLint u_ProjectionLocation = glGetUniformLocation(gGraphicsPipelineShaderProgram, "u_Perspective");
 
     if (u_ProjectionLocation >= 0) {
-        glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
+        glUniformMatrix4fv(u_ProjectionLocation, 1, false, &perspective[0][0]);
     } else {
         std::cout << "Could not find u_Perspectve, maybe a misspelling" << std::endl;
         exit(EXIT_FAILURE);
