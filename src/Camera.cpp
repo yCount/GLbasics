@@ -40,9 +40,11 @@ void Camera::MoveBackward(float speed) {
 }
 
 void Camera::MoveLeft(float speed) {
-    mViewDirection.x -= speed;
+    glm::vec3 rightVector = glm::cross(mViewDirection, mUpVector);
+    mViewDirection -= rightVector * speed;
 }
 
 void Camera::MoveRight(float speed) {
-    mViewDirection.x += speed;
+    glm::vec3 rightVector = glm::cross(mViewDirection, mUpVector);
+    mViewDirection += rightVector * speed;
 }
