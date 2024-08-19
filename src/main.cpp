@@ -51,6 +51,7 @@ struct Mesh3D {
 // ^^^^^^^^^^^^^^^^ Globals ^^^^^^^^^^^^^^^^
 App gApp;
 Mesh3D gMesh1;
+Mesh3D gMesh2;
 
 // ^^^^^^^^^^^^^^^^ Error Handling Routines ^^^^^^^^^^^^^^^^
 
@@ -262,7 +263,7 @@ void Input() {
     }
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    gMesh1.m_uRotate -= 1.0f;
+
     if (state[SDL_SCANCODE_LCTRL] && state[SDL_SCANCODE_E]) {
         gApp.mQuit = true;
     }
@@ -287,15 +288,9 @@ void MeshSetPipeline(Mesh3D *mesh, GLuint pipeline) {
 }
 
 void MeshUpdate(Mesh3D *mesh) {
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-
-    glViewport(0, 0, gApp.mScreenWidth, gApp.mScreenHeight);
-    glClearColor(1.f, 1.f, 0.f, 1.f);
-
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
     glUseProgram(mesh->mPipeline);
+
+    mesh->m_uRotate -= 1.0f;
 
     // Model transform by translating our object into world space
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(mesh->mTransform.x, mesh->mTransform.y, mesh->mTransform.z));
@@ -364,9 +359,20 @@ void MainLoop() {
     while (!gApp.mQuit) {
         Input();
 
-        MeshUpdate(&gMesh1);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
 
+        glViewport(0, 0, gApp.mScreenWidth, gApp.mScreenHeight);
+        glClearColor(1.f, 1.f, 0.f, 1.f);
+
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+
+        MeshUpdate(&gMesh1);
         MeshDraw(&gMesh1);
+
+        MeshUpdate(&gMesh2);
+        MeshDraw(&gMesh2);
 
         // Update the screen
         SDL_GL_SwapWindow(gApp.mGraphicsApplicationWindow);
@@ -378,6 +384,9 @@ void CleanUp() {
 
     glDeleteBuffers(1, &gMesh1.mVertexBufferObject);
     glDeleteVertexArrays(1, &gMesh1.mVertexArrayObject);
+
+    glDeleteBuffers(1, &gMesh2.mVertexBufferObject);
+    glDeleteVertexArrays(1, &gMesh2.mVertexArrayObject);
 
     SDL_Quit();
 }
@@ -393,11 +402,17 @@ int main(int argc, char* args[]) {
     gMesh1.mTransform.y = 0.0f;
     gMesh1.mTransform.z = -2.0f;
 
+    MeshDataVertexSpecification(&gMesh2);
+    gMesh2.mTransform.x = 0.5f;
+    gMesh2.mTransform.y = 0.5f;
+    gMesh2.mTransform.z = -2.0f;
+
     // 3. Create our graphics pipeline
     CreateGraphicsPipeline();
 
     // 3.5 For each mesh, set them to the pipeline
     MeshSetPipeline(&gMesh1, gApp.mGraphicsPipelineShaderProgram);
+    MeshSetPipeline(&gMesh2, gApp.mGraphicsPipelineShaderProgram);
 
     // 4. Call the main application loop
     MainLoop();
