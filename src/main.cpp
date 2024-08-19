@@ -403,8 +403,8 @@ int main(int argc, char* args[]) {
     gMesh1.mTransform.z = -2.0f;
 
     MeshDataVertexSpecification(&gMesh2);
-    gMesh2.mTransform.x = 0.5f;
-    gMesh2.mTransform.y = 0.5f;
+    gMesh2.mTransform.x = 0.25f;
+    gMesh2.mTransform.y = 0.25f;
     gMesh2.mTransform.z = -2.0f;
 
     // 3. Create our graphics pipeline
