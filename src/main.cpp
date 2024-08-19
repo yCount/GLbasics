@@ -27,6 +27,10 @@ struct App {
     Camera mCamera;
 };
 
+struct Transform {
+    float x, y, z;
+};
+
 struct Mesh3D {
     // Our VAO in this project, made temporarily global
     GLuint mVertexArrayObject = 0;
@@ -37,7 +41,9 @@ struct Mesh3D {
     // to draw from, when we do indexed drawing
     GLuint mIndexBufferObject = 0;
 
-    float m_uOffset = -2.0f;
+    // This is the graphics pipeline used with this mesh
+    GLuint mPipeline = 0;
+    Transform mTransform;
     float m_uRotate = 0.1f;
     float m_uScale = 0.5f;
 };
@@ -135,7 +141,7 @@ void CreateGraphicsPipeline() {
     gApp.mGraphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
-void VertexSpecification(Mesh3D* mesh) {
+void MeshDataVertexSpecification(Mesh3D* mesh) {
     // Geometry Data
     const std::vector<GLfloat> vertexData{
         //x     y     z
@@ -276,7 +282,11 @@ void Input() {
     }
 }
 
-void PreDraw() {
+void MeshSetPipeline(Mesh3D *mesh, GLuint pipeline) {
+    mesh->mPipeline = pipeline;
+}
+
+void MeshUpdate(Mesh3D *mesh) {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -285,16 +295,16 @@ void PreDraw() {
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(gApp.mGraphicsPipelineShaderProgram);
+    glUseProgram(mesh->mPipeline);
 
     // Model transform by translating our object into world space
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, gMesh1.m_uOffset));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(mesh->mTransform.x, mesh->mTransform.y, mesh->mTransform.z));
 
     // Uppdate our model matrix by applying a rotation after our translation
-    model = glm::rotate(model, glm::radians(gMesh1.m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(gMesh1.m_uScale, gMesh1.m_uScale, gMesh1.m_uScale));
+    model = glm::rotate(model, glm::radians(mesh->m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(mesh->m_uScale, mesh->m_uScale, mesh->m_uScale));
 
-    GLint u_ModelMatrixLocation = glGetUniformLocation(gApp.mGraphicsPipelineShaderProgram, "u_ModelMatrix");
+    GLint u_ModelMatrixLocation = glGetUniformLocation(mesh->mPipeline, "u_ModelMatrix");
 
     if (u_ModelMatrixLocation >= 0) {
         // glUniform1f(u_ModelMatrixLocation, g_uOffset); // specify value for the uniform variable
@@ -306,7 +316,7 @@ void PreDraw() {
 
     glm::mat4 view = gApp.mCamera.GetViewMatrix();
 
-    GLint u_ViewLocation = glGetUniformLocation(gApp.mGraphicsPipelineShaderProgram, "u_ViewMatrix");
+    GLint u_ViewLocation = glGetUniformLocation(mesh->mPipeline, "u_ViewMatrix");
 
     if (u_ViewLocation >= 0) {
         glUniformMatrix4fv(u_ViewLocation, 1, false, &view[0][0]);
@@ -322,7 +332,7 @@ void PreDraw() {
                                              10.0f);
 
     // Retrieve our location of our Model Matrix
-    GLint u_ProjectionLocation = glGetUniformLocation(gApp.mGraphicsPipelineShaderProgram, "u_Perspective");
+    GLint u_ProjectionLocation = glGetUniformLocation(mesh->mPipeline, "u_Perspective");
 
     if (u_ProjectionLocation >= 0) {
         glUniformMatrix4fv(u_ProjectionLocation, 1, false, &perspective[0][0]);
@@ -332,8 +342,12 @@ void PreDraw() {
     }
 }
 
-void Draw() {
-    glBindVertexArray(gMesh1.mVertexArrayObject);
+void MeshDraw(Mesh3D *mesh) {
+    if (mesh == nullptr) {
+        return;
+    }
+
+    glBindVertexArray(mesh->mVertexArrayObject);
     
     // glDrawArrays(GL_TRIANGLES, 0, 6);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -350,9 +364,9 @@ void MainLoop() {
     while (!gApp.mQuit) {
         Input();
 
-        PreDraw();
+        MeshUpdate(&gMesh1);
 
-        Draw();
+        MeshDraw(&gMesh1);
 
         // Update the screen
         SDL_GL_SwapWindow(gApp.mGraphicsApplicationWindow);
@@ -370,16 +384,25 @@ void CleanUp() {
 
 int main(int argc, char* args[]) {
     
+    // 1. Setup the graphics program
     InitializeProgram(&gApp);
 
-    VertexSpecification(&gMesh1);
+    // 2. Setup our geometry
+    MeshDataVertexSpecification(&gMesh1);
+    gMesh1.mTransform.x = 0.0f;
+    gMesh1.mTransform.y = 0.0f;
+    gMesh1.mTransform.z = -2.0f;
 
+    // 3. Create our graphics pipeline
     CreateGraphicsPipeline();
 
-    GetOpenGLVersionInfo();
+    // 3.5 For each mesh, set them to the pipeline
+    MeshSetPipeline(&gMesh1, gApp.mGraphicsPipelineShaderProgram);
 
+    // 4. Call the main application loop
     MainLoop();
 
+    // 5. Call the cleanup function when the program terminates
     CleanUp();
 
     return 0;
