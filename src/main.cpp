@@ -287,7 +287,16 @@ void MeshSetPipeline(Mesh3D *mesh, GLuint pipeline) {
     mesh->mPipeline = pipeline;
 }
 
-void MeshUpdate(Mesh3D *mesh) {
+GLuint FindUniformLocation(GLuint pipeline, const GLchar* name) {
+    GLuint location = glGetUniformLocation(pipeline, name);
+    if (location < 0) {
+        std::cerr << "Could not find " << name << " maybe a misspelling" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    return location;
+}
+
+void MeshDraw(Mesh3D *mesh) {
     glUseProgram(mesh->mPipeline);
 
     mesh->m_uRotate -= 1.0f;
@@ -299,26 +308,13 @@ void MeshUpdate(Mesh3D *mesh) {
     model = glm::rotate(model, glm::radians(mesh->m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(mesh->m_uScale, mesh->m_uScale, mesh->m_uScale));
 
-    GLint u_ModelMatrixLocation = glGetUniformLocation(mesh->mPipeline, "u_ModelMatrix");
-
-    if (u_ModelMatrixLocation >= 0) {
-        // glUniform1f(u_ModelMatrixLocation, g_uOffset); // specify value for the uniform variable
-        glUniformMatrix4fv(u_ModelMatrixLocation, 1, false, &model[0][0]);
-    } else {
-        std::cout << "Could not find u_ModelMatrix, maybe a misspelling" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    GLint u_ModelMatrixLocation = FindUniformLocation(mesh->mPipeline, "u_ModelMatrix");
+    glUniformMatrix4fv(u_ModelMatrixLocation, 1, false, &model[0][0]);
 
     glm::mat4 view = gApp.mCamera.GetViewMatrix();
 
-    GLint u_ViewLocation = glGetUniformLocation(mesh->mPipeline, "u_ViewMatrix");
-
-    if (u_ViewLocation >= 0) {
-        glUniformMatrix4fv(u_ViewLocation, 1, false, &view[0][0]);
-    } else {
-        std::cout << "Could not find u_ViewMatrix, maybe a misspelling" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    GLint u_ViewLocation = FindUniformLocation(mesh->mPipeline, "u_ViewMatrix");
+    glUniformMatrix4fv(u_ViewLocation, 1, false, &view[0][0]);
 
     // Projection matrix (in perspective)
     glm::mat4 perspective = glm::perspective(glm::radians(45.0f),
@@ -326,18 +322,9 @@ void MeshUpdate(Mesh3D *mesh) {
                                              0.1f,
                                              10.0f);
 
-    // Retrieve our location of our Model Matrix
-    GLint u_ProjectionLocation = glGetUniformLocation(mesh->mPipeline, "u_Perspective");
+    GLint u_ProjectionLocation = FindUniformLocation(mesh->mPipeline, "u_Perspective");
+    glUniformMatrix4fv(u_ProjectionLocation, 1, false, &perspective[0][0]);
 
-    if (u_ProjectionLocation >= 0) {
-        glUniformMatrix4fv(u_ProjectionLocation, 1, false, &perspective[0][0]);
-    } else {
-        std::cout << "Could not find u_Perspectve, maybe a misspelling" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-void MeshDraw(Mesh3D *mesh) {
     if (mesh == nullptr) {
         return;
     }
@@ -368,10 +355,8 @@ void MainLoop() {
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
-        MeshUpdate(&gMesh1);
         MeshDraw(&gMesh1);
 
-        MeshUpdate(&gMesh2);
         MeshDraw(&gMesh2);
 
         // Update the screen
