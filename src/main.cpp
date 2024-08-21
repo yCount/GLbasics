@@ -317,10 +317,7 @@ void MeshDraw(Mesh3D *mesh) {
     glUniformMatrix4fv(u_ViewLocation, 1, false, &view[0][0]);
 
     // Projection matrix (in perspective)
-    glm::mat4 perspective = glm::perspective(glm::radians(45.0f),
-                                             (float)gApp.mScreenWidth/(float)gApp.mScreenHeight,
-                                             0.1f,
-                                             10.0f);
+    glm::mat4 perspective = gApp.mCamera.GetProjectionMatrix();
 
     GLint u_ProjectionLocation = FindUniformLocation(mesh->mPipeline, "u_Perspective");
     glUniformMatrix4fv(u_ProjectionLocation, 1, false, &perspective[0][0]);
@@ -380,6 +377,9 @@ int main(int argc, char* args[]) {
     
     // 1. Setup the graphics program
     InitializeProgram(&gApp);
+
+    // Setup Camera
+    gApp.mCamera.SetProjectionMatrix(glm::radians(45.0f), (float)gApp.mScreenWidth/(float)gApp.mScreenHeight, 0.1f, 10.0f);
 
     // 2. Setup our geometry
     MeshDataVertexSpecification(&gMesh1);
