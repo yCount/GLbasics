@@ -28,7 +28,7 @@ struct App {
 };
 
 struct Transform {
-    float x, y, z;
+    glm::mat4 mModelMatrix{glm::mat4(1.0f)};
 };
 
 struct Mesh3D {
@@ -44,8 +44,6 @@ struct Mesh3D {
     // This is the graphics pipeline used with this mesh
     GLuint mPipeline = 0;
     Transform mTransform;
-    float m_uRotate = 0.1f;
-    float m_uScale = 0.5f;
 };
 
 // ^^^^^^^^^^^^^^^^ Globals ^^^^^^^^^^^^^^^^
@@ -296,20 +294,34 @@ GLuint FindUniformLocation(GLuint pipeline, const GLchar* name) {
     return location;
 }
 
+void MeshTraslate(Mesh3D *mesh, float x, float y, float z) {
+    mesh->mTransform.mModelMatrix = glm::translate(mesh->mTransform.mModelMatrix, glm::vec3(x, y, z));
+}
+
+void MeshRotateY(Mesh3D *mesh, float yAngle, glm::vec3 axis) {
+    mesh->mTransform.mModelMatrix = glm::rotate(mesh->mTransform.mModelMatrix, glm::radians(yAngle), axis);
+}
+
+void MeshScale(Mesh3D *mesh, float x, float y, float z) {
+    mesh->mTransform.mModelMatrix = glm::scale(mesh->mTransform.mModelMatrix, glm::vec3(x, y, z));
+}
+
 void MeshDraw(Mesh3D *mesh) {
     glUseProgram(mesh->mPipeline);
 
-    mesh->m_uRotate -= 1.0f;
+    // mesh->m_uRotate -= 1.0f;
 
-    // Model transform by translating our object into world space
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(mesh->mTransform.x, mesh->mTransform.y, mesh->mTransform.z));
+    // // Model transform by translating our object into world space
+    //glm::mat4 *model = &mesh->mTransform.mModelMatrix;
 
-    // Uppdate our model matrix by applying a rotation after our translation
-    model = glm::rotate(model, glm::radians(mesh->m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(mesh->m_uScale, mesh->m_uScale, mesh->m_uScale));
+    // // Uppdate our model matrix by applying a rotation after our translation
+    //model = glm::rotate(model, glm::radians(mesh->m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
+    //model = glm::scale(model, glm::vec3(mesh->m_uScale, mesh->m_uScale, mesh->m_uScale));
+
+    MeshRotateY(mesh, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
     GLint u_ModelMatrixLocation = FindUniformLocation(mesh->mPipeline, "u_ModelMatrix");
-    glUniformMatrix4fv(u_ModelMatrixLocation, 1, false, &model[0][0]);
+    glUniformMatrix4fv(u_ModelMatrixLocation, 1, false, &mesh->mTransform.mModelMatrix[0][0]);
 
     glm::mat4 view = gApp.mCamera.GetViewMatrix();
 
@@ -383,14 +395,13 @@ int main(int argc, char* args[]) {
 
     // 2. Setup our geometry
     MeshDataVertexSpecification(&gMesh1);
-    gMesh1.mTransform.x = 0.0f;
-    gMesh1.mTransform.y = 0.0f;
-    gMesh1.mTransform.z = -2.0f;
+    MeshTraslate(&gMesh1, 0.0f, 0.0f, -2.0f);
+    MeshScale(&gMesh1, 0.5f, 0.5f, 0.0f);
 
     MeshDataVertexSpecification(&gMesh2);
-    gMesh2.mTransform.x = 0.25f;
-    gMesh2.mTransform.y = 0.25f;
-    gMesh2.mTransform.z = -2.0f;
+    MeshTraslate(&gMesh2, 0.25f, 0.25f, -2.0f);
+    MeshScale(&gMesh1, 0.5f, 0.5f, 0.0f);
+
 
     // 3. Create our graphics pipeline
     CreateGraphicsPipeline();
