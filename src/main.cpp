@@ -309,15 +309,6 @@ void MeshScale(Mesh3D *mesh, float x, float y, float z) {
 void MeshDraw(Mesh3D *mesh) {
     glUseProgram(mesh->mPipeline);
 
-    // mesh->m_uRotate -= 1.0f;
-
-    // // Model transform by translating our object into world space
-    //glm::mat4 *model = &mesh->mTransform.mModelMatrix;
-
-    // // Uppdate our model matrix by applying a rotation after our translation
-    //model = glm::rotate(model, glm::radians(mesh->m_uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
-    //model = glm::scale(model, glm::vec3(mesh->m_uScale, mesh->m_uScale, mesh->m_uScale));
-
     MeshRotateY(mesh, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
     GLint u_ModelMatrixLocation = FindUniformLocation(mesh->mPipeline, "u_ModelMatrix");
@@ -340,7 +331,6 @@ void MeshDraw(Mesh3D *mesh) {
 
     glBindVertexArray(mesh->mVertexArrayObject);
     
-    // glDrawArrays(GL_TRIANGLES, 0, 6);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glUseProgram(0);
