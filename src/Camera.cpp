@@ -34,7 +34,12 @@ void Camera::MouseLook(int mouseX, int mouseY) {
 
     glm::vec2 mouseDelta = mOldMousePosition - currentMouse;
     
+    // MouseX make view rotate left/right
     mViewDirection = glm::rotate(mViewDirection, glm::radians(mouseDelta.x), Camera::mUpVector);
+
+    // MouseY make view rotate up/down
+    glm::vec3 rightVector = glm::cross(mViewDirection, mUpVector);
+    mViewDirection = glm::rotate(mViewDirection, glm::radians(mouseDelta.y), rightVector);
 
     mOldMousePosition = currentMouse;
 }
