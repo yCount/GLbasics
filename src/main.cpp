@@ -55,7 +55,7 @@ int main() {
     MeshTraslate(&mesh1, 0.0f, 0.0f, -2.0f);
     MeshScale(&mesh1, 0.5f);
 
-    MeshDataVertexSpecification(&mesh2, MeshTemplates::Cube);
+    MeshDataVertexSpecification(&mesh2, MeshTemplates::Sphere);
     MeshTraslate(&mesh2, 0.5f, 0.25f, -2.0f);
     MeshScale(&mesh2, 0.3f);
 

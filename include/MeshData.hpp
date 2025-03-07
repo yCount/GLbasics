@@ -63,6 +63,8 @@ namespace MeshTemplates {
         0, 3, 1, // Left Face
         1, 2, 3}  // Bottom Face
     };
+    
+    const MeshData Sphere = GenerateSphere(9);
 }
 
 #endif
