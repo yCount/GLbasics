@@ -19,6 +19,8 @@ class Camera {
         void MoveBackward(float);
         void MoveLeft(float);
         void MoveRight(float);
+        void MoveUp(float);
+        void MoveDown(float);
     private:
         glm::vec3 mEye;
         glm::vec3 mViewDirection;

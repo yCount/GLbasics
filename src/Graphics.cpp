@@ -49,21 +49,8 @@ GLuint CompileShader(GLuint type, const std::string& source) {
     return shaderObject;
 }
 
-void MeshDataVertexSpecification(Mesh3D* mesh) {
-    // Geometry Data
-    const std::vector<GLfloat> vertexData{
-        //x     y     z
-        //r     g     b
-        -0.5f, -0.5f, 0.0f,// vertex 1
-        1.0f, 0.0f, 0.0f,  // color
-        0.5f, -0.5f, 0.0f, // vertex 2
-        0.0f, 1.0f, 0.0f,  // color
-        -0.5f, 0.5f, 0.0f, // vertex 3
-        0.0f, 0.0f, 1.0f,  //color
-        0.5f, 0.5f, 0.0f,  // vertex 4
-        1.0f, 0.0f, 0.0f   //color
-    };
-
+void MeshDataVertexSpecification(Mesh3D* mesh, const MeshData& meshData) {
+    
     // Setting things up on the GPU
     glGenVertexArrays(1, &mesh->mVertexArrayObject);
     glBindVertexArray(mesh->mVertexArrayObject);
@@ -72,20 +59,19 @@ void MeshDataVertexSpecification(Mesh3D* mesh) {
     glGenBuffers(1, &mesh->mVertexBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->mVertexBufferObject);
     glBufferData(GL_ARRAY_BUFFER,                   // Kind of buffer
-                vertexData.size() * sizeof(GLfloat),// Size of data in bytes
-                vertexData.data(),                  // Raw array of data
+                meshData.vertices.size()*sizeof(Vertex),// Size of data in bytes
+                meshData.vertices.data(),                  // Raw array of data
                 GL_STATIC_DRAW);                    // Intend to use the data
 
 
-    const std::vector<GLuint> indexBufferObject {2, 0, 1, 3, 2, 1};
     // Setting up Index Buffer Object (IBO)
     glGenBuffers(1, &mesh->mIndexBufferObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
                  mesh->mIndexBufferObject);
     // Populate the Index Buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 indexBufferObject.size()*sizeof(GLuint),
-                 indexBufferObject.data(),
+                 meshData.indices.size()*sizeof(GLuint),
+                 meshData.indices.data(),
                  GL_STATIC_DRAW);
 
 
@@ -94,8 +80,8 @@ void MeshDataVertexSpecification(Mesh3D* mesh) {
                           3,        // The number of components
                           GL_FLOAT, // Type
                           false, // is the data normalized
-                          sizeof(GLfloat)*6,        // stride (gap between data)
-                          (void*)0);// offset
+                          sizeof(Vertex),        // stride (gap between data)
+                          (GLvoid*)offsetof(Vertex, x));// offset
 
     // Linking attribs in VBO
     // Color information
@@ -106,6 +92,9 @@ void MeshDataVertexSpecification(Mesh3D* mesh) {
                           false, 
                           sizeof(GLfloat)*6, 
                           (GLvoid*)(sizeof(GLfloat)*3));
+    
+    // Setting index count
+    mesh->mIndexCount = static_cast<GLsizei>(meshData.indices.size());
 
     // Unbind current bound
     glBindVertexArray(0);
@@ -143,7 +132,7 @@ void MeshDraw(Mesh3D* mesh, App app) {
 
     glBindVertexArray(mesh->mVertexArrayObject);
     
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh->mIndexCount, GL_UNSIGNED_INT, 0);
 
     glUseProgram(0);
 }

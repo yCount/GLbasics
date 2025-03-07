@@ -24,17 +24,25 @@ void Input(App* app) {
         app->mQuit = true;
     }
 
-    if (state[SDL_SCANCODE_UP]) {
+    if (state[SDL_SCANCODE_W]) {
         app->mCamera.MoveForward(0.05f);
     }
-    if (state[SDL_SCANCODE_DOWN]) {
+    if (state[SDL_SCANCODE_S]) {
         app->mCamera.MoveBackward(0.05f);
     }
     
-    if (state[SDL_SCANCODE_LEFT]) {
-        app->mCamera.MoveLeft(0.01f);
+    if (state[SDL_SCANCODE_A]) {
+        app->mCamera.MoveLeft(0.05f);
     }
-    if (state[SDL_SCANCODE_RIGHT]) {
-        app->mCamera.MoveRight(0.01f);
+    if (state[SDL_SCANCODE_D]) {
+        app->mCamera.MoveRight(0.05f);
+    }
+
+    if (state[SDL_SCANCODE_LSHIFT]) {
+        app->mCamera.MoveUp(0.03f);
+    }
+
+    if (state[SDL_SCANCODE_LCTRL]) {
+        app->mCamera.MoveDown(0.03f);
     }
 }

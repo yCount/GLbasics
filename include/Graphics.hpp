@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "MeshData.hpp"
+
 #include "App.hpp"
 #include "Utilities.hpp"
 
@@ -20,6 +22,7 @@ struct Mesh3D {
     // This is used to store the array of indices that we want
     // to draw from, when we do indexed drawing
     GLuint mIndexBufferObject = 0;
+    GLsizei mIndexCount = 0;
     // This is the graphics pipeline used with this mesh
     GLuint mPipeline = 0;
     Transform mTransform;
@@ -28,7 +31,7 @@ struct Mesh3D {
 void CreateGraphicsPipeline(App* app);
 GLuint CreateShaderProgram(const std::string& vertexshadersource, const std::string& fragmentshadersource);
 GLuint CompileShader(GLuint type, const std::string& source);
-void MeshDataVertexSpecification(Mesh3D* mesh);
+void MeshDataVertexSpecification(Mesh3D* mesh, const MeshData& meshData);
 void MeshSetPipeline(Mesh3D* mesh, GLuint pipeline);
 void MeshDraw(Mesh3D* mesh, App app);
 GLuint FindUniformLocation(GLuint pipeline, const GLchar* name);
