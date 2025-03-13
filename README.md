@@ -11,16 +11,11 @@
 ## Installation
 ### Prerequisites
 Ensure you have the following installed:
-- OpenGL (>= 3.3 recommended)
+- OpenGL
 - GLFW (for window and input management)
 - GLAD (for OpenGL function loading)
 - GLM (for mathematics operations)
 
-### Clone the Repository
-```bash
-https://github.com/yCount/GLbasics
-cd OpenGL-Sim
-```
 ![screenshot](img/img1.png)
 
 ### Build and Run
